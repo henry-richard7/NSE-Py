@@ -26,6 +26,31 @@ class NseAPI:
         ).json()
 
         return [symbol for symbols in response.keys() for symbol in response[symbols]]
+    
+    def get_all_stocks(self, index: str):
+        """
+        Retrieves all stocks from the NSE equity-stockIndices API based on the given index.
+
+        Args:
+            index (str): The index for which to retrieve the stocks.
+
+        Returns:
+            list: A list of dictionaries containing the stock symbol and company name of each stock.
+        """
+        url = f"https://www.nseindia.com/api/equity-stockIndices?index={quote(index.upper())}"
+
+        response = self.client.get(url, headers=self.HEADERS).json()['data']
+
+        results = [
+            {
+                "stock_symbol": stock['symbol'],
+                "company_name": stock.get('meta', {}).get('companyName')
+            }
+            for stock in response
+            if stock['symbol'] != index.upper()
+        ]
+        
+        return results
 
     def index_data(self, stock_index):
         """
